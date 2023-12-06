@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Movies</title>
+  <%= stylesheet_link_tag 'application' %>
+</head>
+<body>
+
+<h1>All Movies</h1>
+
+<%= link_to 'Add Movie', new_movie_path, :class => 'btn btn-primary' %>
+
+<div id="filter-options">
+  <% Movie.distinct.pluck(:rating).each do |rating| %>
+    <label>
+      <input type="checkbox" checked data-rating="<%= rating %>" onchange="filterMovies()">
+      <%= rating %>
+    </label>
+  <% end %>
+</div>
+
+<div id="movies">
+  <div class="row">
+    <div class="col-8">Movie Title</div>
+    <div class="col-2">Rating</div>
+    <div class="col-2">Release Date</div>
+  </div>
+  <%- @movies.each do |movie| %>
+    <div class="row" data-rating="<%= movie.rating %>">
+      <div class="col-8"> <%= link_to movie.title, movie_path(movie) %> </div>
+      <div class="col-2"> <%= movie.rating %></div>
+      <div class="col-2"> <%= movie.release_date.strftime('%F') %> </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+    const checkboxes = document.querySelectorAll('#filter-options input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', filterMovies);
+    });
+    function filterMovies() {
+        const movieRows = document.querySelectorAll('#movies .row');
+        const selectedRatings = Array.from(checkboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.getAttribute('data-rating'));
+        movieRows.forEach(movieRow => {
+            const rating = movieRow.getAttribute('data-rating');
+            movieRow.style.display = selectedRatings.includes(rating) ? 'flex' : 'none';
+        });
+    }
+    filterMovies();
+</script>
+
+</body>
+</html>
